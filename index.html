@@ -1,0 +1,3315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetterYou — متتبع العادات</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  <meta name="description" content="BetterYou - تطبيق ذكي لتتبع العادات">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Cairo+Play:wght@700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    :root {
+      --bg: #faf8f5;
+      --bg2: #f0ede8;
+      --surface: #ffffff;
+      --surface2: #fdf9f5;
+      --surface3: #fef3e8;
+      --primary: #f97316;
+      --primary-light: #fff4ed;
+      --primary-glow: rgba(249, 115, 22, 0.2);
+      --positive: #16a34a;
+      --positive-light: #f0fdf4;
+      --negative: #dc2626;
+      --negative-light: #fef2f2;
+      --resisted: #7c3aed;
+      --resisted-light: #f5f3ff;
+      --mood-color: #ec4899;
+      --streak-color: #ea580c;
+      --text: #18181b;
+      --text-muted: #71717a;
+      --text-faint: #a1a1aa;
+      --border: #e4e0d8;
+      --border-light: #f0ede8;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+      --shadow-primary: 0 4px 20px rgba(249, 115, 22, 0.25);
+      --radius: 18px;
+      --radius-sm: 10px;
+      --radius-full: 9999px;
+    }
+
+    body.dark {
+      --bg: #0c0a09;
+      --bg2: #141210;
+      --surface: #1c1917;
+      --surface2: #242018;
+      --surface3: #2a2218;
+      --primary: #fb923c;
+      --primary-light: #1f1208;
+      --primary-glow: rgba(251, 146, 60, 0.15);
+      --positive: #22c55e;
+      --positive-light: #052e16;
+      --negative: #f87171;
+      --negative-light: #1f0707;
+      --resisted: #a78bfa;
+      --resisted-light: #1e0a3c;
+      --text: #fafaf9;
+      --text-muted: #a8a29e;
+      --text-faint: #57534e;
+      --border: #292524;
+      --border-light: #1c1917;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background .3s, color .3s
+    }
+
+    h1,
+    h2,
+    h3,
+    .display-font {
+      font-family: 'Cairo Play', 'Cairo', sans-serif
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: all .2s ease
+    }
+
+    input,
+    textarea {
+      font-family: inherit;
+      outline: none;
+      border: none
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg2);
+      border-radius: 3px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-faint)
+    }
+
+    /* Floating orbs */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden
+    }
+
+    .bg-orbs .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .12;
+      animation: orbFloat 20s ease-in-out infinite
+    }
+
+    .bg-orbs .orb:nth-child(1) {
+      width: 400px;
+      height: 400px;
+      background: #f97316;
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s
+    }
+
+    .bg-orbs .orb:nth-child(2) {
+      width: 300px;
+      height: 300px;
+      background: #ec4899;
+      bottom: -50px;
+      left: -50px;
+      animation-delay: -7s;
+      animation-duration: 25s
+    }
+
+    .bg-orbs .orb:nth-child(3) {
+      width: 350px;
+      height: 350px;
+      background: #7c3aed;
+      top: 50%;
+      left: 50%;
+      animation-delay: -14s;
+      animation-duration: 30s
+    }
+
+    @keyframes orbFloat {
+
+      0%,
+      100% {
+        transform: translate(0, 0)
+      }
+
+      25% {
+        transform: translate(40px, -30px)
+      }
+
+      50% {
+        transform: translate(-20px, 40px)
+      }
+
+      75% {
+        transform: translate(30px, 20px)
+      }
+    }
+
+    /* Confetti burst */
+    .confetti-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      pointer-events: none;
+      z-index: 10
+    }
+
+    .confetti-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: confettiBurst .6s ease-out forwards
+    }
+
+    @keyframes confettiBurst {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1)
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0)
+      }
+    }
+
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .toast {
+      padding: 14px 24px;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      animation: toastIn .3s ease;
+      box-shadow: var(--shadow-lg);
+      max-width: 360px
+    }
+
+    .toast.success {
+      background: var(--positive)
+    }
+
+    .toast.error {
+      background: var(--negative)
+    }
+
+    .toast.removing {
+      animation: toastOut .3s ease forwards
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+    }
+
+    /* Section transition */
+    .section {
+      animation: sectionIn .25s ease both
+    }
+
+    @keyframes sectionIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* Auth */
+    #auth-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      z-index: 1
+    }
+
+    .auth-container {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+      text-align: center
+    }
+
+    .auth-logo {
+      font-size: 48px;
+      margin-bottom: 8px
+    }
+
+    .auth-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, var(--primary), #d4782c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .auth-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 32px
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg2);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 28px
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      background: transparent;
+      color: var(--text-muted)
+    }
+
+    .auth-tab.active {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 14px;
+      border: 2px solid transparent;
+      transition: border .2s
+    }
+
+    .auth-input:focus {
+      border-color: var(--primary);
+      outline: 2px solid var(--primary-glow);
+      outline-offset: 1px
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary), #d4782c);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary)
+    }
+
+    .auth-btn:active {
+      transform: scale(.97)
+    }
+
+    .auth-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    /* App Layout */
+    #app {
+      display: none;
+      position: relative;
+      z-index: 1
+    }
+
+    .app-layout {
+      display: flex;
+      min-height: 100vh
+    }
+
+    /* Sidebar Nav */
+    .sidebar-nav {
+      width: 220px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0
+    }
+
+    .sidebar-brand {
+      padding: 16px 20px 24px;
+      text-align: center
+    }
+
+    .sidebar-brand .logo {
+      font-size: 32px
+    }
+
+    .sidebar-brand .name {
+      font-family: 'Cairo Play', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), #d4782c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .nav-items {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 12px
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s;
+      border-right: 3px solid transparent
+    }
+
+    .nav-item:hover {
+      background: var(--bg2);
+      color: var(--text);
+      transform: translateX(4px)
+    }
+
+    .nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-right-color: var(--primary)
+    }
+
+    .nav-item .icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center
+    }
+
+    .nav-bottom {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .dark-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted)
+    }
+
+    .toggle-sw {
+      width: 40px;
+      height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    .toggle-sw.on {
+      background: var(--primary)
+    }
+
+    .toggle-sw::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .2s
+    }
+
+    .toggle-sw.on::after {
+      transform: translateX(-18px)
+    }
+
+    .logout-btn {
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--negative);
+      background: var(--negative-light);
+      text-align: center
+    }
+
+    .logout-btn:hover {
+      background: var(--negative);
+      color: #fff
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 28px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%
+    }
+
+    .section-header {
+      margin-bottom: 24px
+    }
+
+    .section-header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 4px
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 14px
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      transition: all .2s
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md)
+    }
+
+    /* ── Dashboard ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px
+    }
+
+    .dash-main {
+      display: flex;
+      flex-direction: column;
+      gap: 20px
+    }
+
+    .dash-side {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: sticky;
+      top: 28px;
+      height: fit-content
+    }
+
+    .greeting-card {
+      padding: 24px;
+      background: linear-gradient(135deg, var(--primary-light), var(--surface));
+      border: 1px solid var(--border-light)
+    }
+
+    .greeting-text {
+      font-size: 22px;
+      font-weight: 800
+    }
+
+    .greeting-date {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      border: 1px solid var(--border-light)
+    }
+
+    .filter-tab {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      background: transparent;
+      color: var(--text-muted);
+      text-align: center
+    }
+
+    .filter-tab.active {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .habit-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--border-light);
+      animation: sectionIn .4s ease both;
+      transition: transform .2s;
+      position: relative
+    }
+
+    .habit-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md)
+    }
+
+    .habit-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0
+    }
+
+    .habit-icon.positive {
+      background: var(--positive-light)
+    }
+
+    .habit-icon.negative {
+      background: var(--negative-light)
+    }
+
+    .habit-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .habit-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 3px
+    }
+
+    .habit-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .habit-badge {
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .habit-badge.positive {
+      background: var(--positive-light);
+      color: var(--positive)
+    }
+
+    .habit-badge.negative {
+      background: var(--negative-light);
+      color: var(--negative)
+    }
+
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(234, 88, 12, .1);
+      color: var(--streak-color);
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .streak-badge.glow {
+      box-shadow: 0 0 12px rgba(234, 88, 12, .4);
+      animation: streakGlow 2s ease-in-out infinite
+    }
+
+    @keyframes streakGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 8px rgba(234, 88, 12, .3)
+      }
+
+      50% {
+        box-shadow: 0 0 20px rgba(234, 88, 12, .6)
+      }
+    }
+
+    .habit-progress {
+      width: 100%;
+      height: 5px;
+      background: var(--bg2);
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden
+    }
+
+    .habit-progress-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--positive);
+      transition: width .6s ease
+    }
+
+    .habit-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0
+    }
+
+    .habit-action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--bg2);
+      transition: all .2s;
+      position: relative
+    }
+
+    .habit-action-btn:hover {
+      transform: scale(1.1)
+    }
+
+    .habit-action-btn:active {
+      transform: scale(.9)
+    }
+
+    .habit-action-btn.done-active {
+      background: var(--positive);
+      color: #fff
+    }
+
+    .habit-action-btn.miss-active {
+      background: var(--negative);
+      color: #fff
+    }
+
+    .habit-action-btn.resist-active {
+      background: var(--resisted);
+      color: #fff
+    }
+
+    .habit-action-btn.fail-active {
+      background: #7f1d1d;
+      color: #fff
+    }
+
+    .habit-edit-btn {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      font-size: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s
+    }
+
+    .habit-card:hover .habit-edit-btn {
+      opacity: 1
+    }
+
+    .motivation-banner {
+      padding: 18px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary-light), var(--surface3));
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light)
+    }
+
+    .daily-score-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: 700
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted)
+    }
+
+    .empty-state .es-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+      display: block
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      line-height: 1.8
+    }
+
+    .add-habit-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary), #d4782c);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px
+    }
+
+    .add-habit-btn:hover {
+      box-shadow: var(--shadow-primary);
+      transform: translateY(-2px)
+    }
+
+    /* Donut */
+    .donut-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px
+    }
+
+    .donut {
+      width: 130px;
+      height: 130px;
+      position: relative
+    }
+
+    .donut svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg)
+    }
+
+    .donut circle {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round
+    }
+
+    .donut .bg-ring {
+      stroke: var(--bg2)
+    }
+
+    .donut .fg-ring {
+      stroke: var(--primary);
+      transition: stroke-dashoffset 1s ease
+    }
+
+    .donut-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center
+    }
+
+    .donut-pct {
+      font-family: 'Cairo Play', sans-serif;
+      font-size: 28px;
+      font-weight: 800
+    }
+
+    .donut-sub {
+      font-size: 11px;
+      color: var(--text-muted)
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 6px;
+      height: 100px;
+      padding-top: 8px
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      background: var(--primary);
+      min-height: 4px;
+      transition: height .6s ease
+    }
+
+    .bar-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600
+    }
+
+    /* Calendar */
+    .cal-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light)
+    }
+
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px
+    }
+
+    .cal-header h3 {
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .cal-nav {
+      display: flex;
+      gap: 4px
+    }
+
+    .cal-nav button {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .cal-nav button:hover {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 4px
+    }
+
+    .cal-weekdays span {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-faint);
+      font-weight: 600;
+      padding: 3px 0
+    }
+
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--bg2);
+      color: var(--text);
+      position: relative
+    }
+
+    .cal-day:hover {
+      transform: scale(1.1)
+    }
+
+    .cal-day.empty {
+      visibility: hidden
+    }
+
+    .cal-day.today {
+      border: 2px solid var(--primary)
+    }
+
+    .cal-day.selected {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .cal-day.score-0 {
+      background: #ef4444;
+      color: #fff
+    }
+
+    .cal-day.score-low {
+      background: #f59e0b;
+      color: #fff
+    }
+
+    .cal-day.score-mid {
+      background: #84cc16;
+      color: #fff
+    }
+
+    .cal-day.score-full {
+      background: #22c55e;
+      color: #fff
+    }
+
+    /* ── Planner ── */
+    .planner-date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px
+    }
+
+    .planner-date-nav h2 {
+      font-size: 18px;
+      font-weight: 700;
+      min-width: 180px;
+      text-align: center
+    }
+
+    .planner-date-nav button {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .planner-date-nav button:hover {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .btn-today {
+      padding: 6px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .btn-today:hover {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .timeline-track {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      height: 60px;
+      position: relative;
+      border: 1px solid var(--border-light);
+      margin-bottom: 20px;
+      overflow: hidden
+    }
+
+    .timeline-block {
+      position: absolute;
+      top: 8px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      padding: 0 8px;
+      overflow: hidden;
+      min-width: 20px;
+      cursor: pointer;
+      opacity: .85;
+      transition: opacity .2s
+    }
+
+    .timeline-block:hover {
+      opacity: 1
+    }
+
+    .timeline-block.completed {
+      opacity: .4
+    }
+
+    .block-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .block-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light)
+    }
+
+    .block-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .block-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 100px;
+      direction: ltr;
+      text-align: right
+    }
+
+    .block-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    .block-title.completed {
+      text-decoration: line-through;
+      opacity: .5
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 6px
+    }
+
+    .block-actions button {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg2);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .block-actions button:hover {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .add-block-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 16px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px dashed var(--border);
+      margin-top: 16px
+    }
+
+    .add-block-form input {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 14px;
+      border: 2px solid transparent
+    }
+
+    .add-block-form input:focus {
+      border-color: var(--primary)
+    }
+
+    .color-swatches {
+      display: flex;
+      gap: 6px
+    }
+
+    .color-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all .2s
+    }
+
+    .color-swatch.selected {
+      border-color: var(--text);
+      transform: scale(1.15)
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      background: var(--primary);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .btn-primary:hover {
+      box-shadow: var(--shadow-primary)
+    }
+
+    /* ── Journal ── */
+    .mood-selector {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px
+    }
+
+    .mood-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg2);
+      transition: all .2s;
+      border: 3px solid transparent
+    }
+
+    .mood-btn:hover {
+      transform: scale(1.1)
+    }
+
+    .mood-btn.selected {
+      border-color: var(--mood-color);
+      background: var(--surface);
+      transform: scale(1.15);
+      box-shadow: 0 0 16px rgba(236, 72, 153, .3)
+    }
+
+    .journal-textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 20px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.9;
+      resize: vertical;
+      border: 1px solid var(--border-light)
+    }
+
+    .journal-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow)
+    }
+
+    .journal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-faint)
+    }
+
+    .save-indicator {
+      color: var(--positive);
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity .3s
+    }
+
+    .save-indicator.visible {
+      opacity: 1
+    }
+
+    .past-entries {
+      display: flex;
+      gap: 8px;
+      padding: 16px 0;
+      overflow-x: auto
+    }
+
+    .past-day {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg2);
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: all .2s;
+      border: 2px solid transparent
+    }
+
+    .past-day:hover {
+      transform: scale(1.1)
+    }
+
+    .past-day.has-entry {
+      border-color: var(--mood-color)
+    }
+
+    .past-day.current {
+      background: var(--primary);
+      color: #fff
+    }
+
+    /* ── Goals ── */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px
+    }
+
+    .week-nav h2 {
+      font-size: 18px;
+      font-weight: 700;
+      min-width: 200px;
+      text-align: center
+    }
+
+    .goals-layout {
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 24px
+    }
+
+    .goal-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .goal-input-row input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 14px;
+      border: 2px solid transparent
+    }
+
+    .goal-input-row input:focus {
+      border-color: var(--primary)
+    }
+
+    .goal-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      margin-bottom: 8px;
+      transition: all .2s
+    }
+
+    .goal-item.completed {
+      opacity: .5
+    }
+
+    .goal-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+      flex-shrink: 0;
+      background: var(--surface)
+    }
+
+    .goal-check.checked {
+      background: var(--positive);
+      border-color: var(--positive);
+      color: #fff
+    }
+
+    .goal-text {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500
+    }
+
+    .goal-text.done {
+      text-decoration: line-through;
+      color: var(--text-muted)
+    }
+
+    .goal-del {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-faint);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s
+    }
+
+    .goal-item:hover .goal-del {
+      opacity: 1
+    }
+
+    .goal-del:hover {
+      background: var(--negative-light);
+      color: var(--negative)
+    }
+
+    /* ── Notes ── */
+    .notes-top {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px
+    }
+
+    .notes-search {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 14px;
+      border: 2px solid transparent
+    }
+
+    .notes-search:focus {
+      border-color: var(--primary)
+    }
+
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px
+    }
+
+    .note-card {
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 120px;
+      position: relative;
+      border: 1px solid var(--border-light);
+      transition: all .2s;
+      display: flex;
+      flex-direction: column
+    }
+
+    .note-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md)
+    }
+
+    .note-title-input,
+    .note-content-input {
+      background: transparent;
+      color: inherit;
+      width: 100%;
+      resize: none;
+      font-size: 14px
+    }
+
+    .note-title-input {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px
+    }
+
+    .note-content-input {
+      flex: 1;
+      line-height: 1.7;
+      min-height: 60px
+    }
+
+    .note-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(0, 0, 0, .05)
+    }
+
+    .note-footer span {
+      font-size: 11px;
+      color: var(--text-faint)
+    }
+
+    .note-actions {
+      display: flex;
+      gap: 4px
+    }
+
+    .note-actions button {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s
+    }
+
+    .note-actions button:hover {
+      background: rgba(0, 0, 0, .08)
+    }
+
+    /* ── Pomodoro ── */
+    .pomo-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      max-width: 440px;
+      margin: 0 auto
+    }
+
+    .pomo-task-input {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      text-align: center;
+      border: 1px solid var(--border-light)
+    }
+
+    .pomo-task-input:focus {
+      border-color: var(--primary)
+    }
+
+    .pomo-modes {
+      display: flex;
+      gap: 8px
+    }
+
+    .pomo-mode {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      position: relative
+    }
+
+    .pomo-mode.active {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .pomo-mode-dur {
+      display: block;
+      font-size: 11px;
+      opacity: .7
+    }
+
+    .pomo-timer-circle {
+      width: 240px;
+      height: 240px;
+      position: relative
+    }
+
+    .pomo-timer-circle svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg)
+    }
+
+    .pomo-timer-circle circle {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round
+    }
+
+    .pomo-timer-circle .bg-ring {
+      stroke: var(--bg2)
+    }
+
+    .pomo-timer-circle .fg-ring {
+      stroke: var(--primary);
+      transition: stroke-dashoffset .5s linear
+    }
+
+    .pomo-timer-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center
+    }
+
+    .pomo-time {
+      font-family: 'Cairo Play', sans-serif;
+      font-size: 48px;
+      font-weight: 800
+    }
+
+    .pomo-mode-label {
+      font-size: 14px;
+      color: var(--text-muted)
+    }
+
+    .pomo-controls {
+      display: flex;
+      gap: 12px
+    }
+
+    .pomo-ctrl {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--text)
+    }
+
+    .pomo-ctrl.start {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      width: 64px;
+      height: 64px;
+      font-size: 24px
+    }
+
+    .pomo-ctrl:hover {
+      transform: scale(1.1)
+    }
+
+    .pomo-cycles {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .pomo-cycle-dot {
+      font-size: 22px;
+      opacity: .25
+    }
+
+    .pomo-cycle-dot.filled {
+      opacity: 1
+    }
+
+    .pomo-stats {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px
+    }
+
+    .pomo-stat {
+      text-align: center;
+      padding: 14px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light)
+    }
+
+    .pomo-stat-val {
+      font-family: 'Cairo Play', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary)
+    }
+
+    .pomo-stat-label {
+      font-size: 11px;
+      color: var(--text-muted)
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn .2s
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp .3s ease
+    }
+
+    @media(min-width:768px) {
+      .modal {
+        border-radius: var(--radius);
+        align-self: center
+      }
+    }
+
+    .modal h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px
+    }
+
+    .modal-field {
+      margin-bottom: 18px
+    }
+
+    .modal-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px
+    }
+
+    .modal-field input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 15px;
+      border: 2px solid transparent
+    }
+
+    .modal-field input:focus {
+      border-color: var(--primary)
+    }
+
+    .type-selector {
+      display: flex;
+      gap: 8px
+    }
+
+    .type-option {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      text-align: center;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all .2s
+    }
+
+    .type-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px
+    }
+
+    .icon-option {
+      aspect-ratio: 1;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      border: 2px solid transparent
+    }
+
+    .icon-option:hover {
+      transform: scale(1.1)
+    }
+
+    .icon-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .cat-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .cat-option {
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      background: var(--bg2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid transparent
+    }
+
+    .cat-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary)
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--primary), #d4782c);
+      color: #fff
+    }
+
+    .btn-save:hover {
+      box-shadow: var(--shadow-primary)
+    }
+
+    .btn-cancel {
+      background: var(--bg2);
+      color: var(--text)
+    }
+
+    .btn-delete {
+      background: var(--negative);
+      color: #fff;
+      margin-top: 10px;
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    /* Widget cards on sidebar */
+    .widget {
+      padding: 16px
+    }
+
+    .widget h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-muted)
+    }
+
+    .widget-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 6px 0
+    }
+
+    .mini-progress {
+      width: 100%;
+      height: 6px;
+      background: var(--bg2);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .mini-progress-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--primary);
+      transition: width .6s
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%)
+      }
+
+      to {
+        transform: translateY(0)
+      }
+    }
+
+    body.dark .auth-container,
+    body.dark .card,
+    body.dark .habit-card,
+    body.dark .cal-card,
+    body.dark .modal {
+      border: 1px solid var(--border)
+    }
+
+    body.dark .note-actions button:hover {
+      background: rgba(255, 255, 255, .1)
+    }
+
+    /* Mobile */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 100;
+      padding: 12px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .hamburger {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text)
+    }
+
+    .mobile-header .app-name {
+      font-family: 'Cairo Play', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), #d4782c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      z-index: 900;
+      display: none
+    }
+
+    .drawer-overlay.open {
+      display: block
+    }
+
+    .mobile-drawer {
+      position: fixed;
+      top: 0;
+      right: -280px;
+      width: 260px;
+      height: 100vh;
+      background: var(--surface);
+      z-index: 901;
+      transition: right .3s ease;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      border-left: 1px solid var(--border)
+    }
+
+    .mobile-drawer.open {
+      right: 0
+    }
+
+    @media(max-width:1024px) {
+      .dash-grid {
+        grid-template-columns: 1fr
+      }
+
+      .dash-side {
+        position: static
+      }
+
+      .goals-layout {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media(max-width:768px) {
+      .sidebar-nav {
+        display: none
+      }
+
+      .mobile-header {
+        display: flex
+      }
+
+      .main-content {
+        padding: 16px;
+        padding-top: 72px
+      }
+
+      .notes-grid {
+        grid-template-columns: 1fr
+      }
+
+      .pomo-stats {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* Streak/rate items */
+    .streak-item,
+    .rate-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light)
+    }
+
+    .streak-item:last-child,
+    .rate-item:last-child {
+      border: none
+    }
+
+    .s-icon,
+    .r-icon {
+      font-size: 20px
+    }
+
+    .s-info,
+    .r-info {
+      flex: 1
+    }
+
+    .s-name,
+    .r-name {
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .s-count {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--streak-color)
+    }
+
+    .r-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--bg2);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden
+    }
+
+    .r-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--positive);
+      transition: width .6s
+    }
+
+    .r-pct {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted)
+    }
+
+
+    /* ── YouTube Learning ── */
+    .yt-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      height: calc(100vh - 120px);
+    }
+
+    @media(max-width: 900px) {
+      .yt-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+
+    .yt-playlists {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .yt-playlist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg2);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .yt-playlist-item:hover {
+      background: var(--surface2);
+      transform: translateY(-2px);
+    }
+
+    .yt-playlist-item.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .yt-add-playlist {
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      color: var(--text-faint);
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .yt-add-playlist:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .yt-videos {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      padding-bottom: 40px;
+    }
+
+    .yt-vid-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: grab;
+      position: relative;
+    }
+
+    .yt-vid-card:active {
+      cursor: grabbing;
+    }
+
+    .yt-vid-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .yt-vid-thumb {
+      width: 120px;
+      height: 68px;
+      border-radius: 8px;
+      background: var(--bg2);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .yt-vid-thumb::after {
+      content: '▶';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .yt-vid-card:hover .yt-vid-thumb::after {
+      opacity: 1;
+    }
+
+    .yt-vid-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .yt-vid-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .yt-vid-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+    }
+
+    .yt-vid-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .yt-check {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: transparent;
+      transition: all 0.2s;
+    }
+
+    .yt-check.watched {
+      background: var(--positive);
+      border-color: var(--positive);
+      color: white;
+      box-shadow: 0 0 10px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Video Player Modal */
+    .yt-modal-content {
+      width: 900px;
+      max-width: 95vw;
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .yt-player-wrap {
+      width: 100%;
+      background: #000;
+      aspect-ratio: 16/9;
+      position: relative;
+    }
+
+    .yt-player-wrap iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      border: none;
+    }
+
+    .yt-notes-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .yt-note-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+
+    .yt-timestamp {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: monospace;
+      flex-shrink: 0;
+    }
+
+    .yt-timestamp:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Add Video Input */
+    .yt-add-video {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: var(--surface);
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+    }
+
+    .yt-add-video input {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-orbs">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+  <div id="toast-container"></div>
+
+  <!-- AUTH -->
+  <div id="auth-screen">
+    <div class="auth-container">
+      <div class="auth-logo">🌱</div>
+      <h1 class="auth-title">BetterYou</h1>
+      <p class="auth-subtitle">ابدأ رحلتك نحو نسخة أفضل منك</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">تسجيل دخول</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')" id="tab-register">حساب جديد</button>
+      </div>
+      <div id="auth-form-login">
+        <input class="auth-input" type="email" id="login-email" placeholder="البريد الإلكتروني">
+        <input class="auth-input" type="password" id="login-password" placeholder="كلمة المرور">
+        <button class="auth-btn" id="login-btn" onclick="handleLogin()">تسجيل الدخول</button>
+      </div>
+      <div id="auth-form-register" class="hidden">
+        <input class="auth-input" type="text" id="reg-name" placeholder="الاسم">
+        <input class="auth-input" type="email" id="reg-email" placeholder="البريد الإلكتروني">
+        <input class="auth-input" type="password" id="reg-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
+        <button class="auth-btn" id="reg-btn" onclick="handleRegister()">إنشاء حساب</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE HEADER -->
+  <div class="mobile-header" id="mobile-header">
+    <button class="hamburger" onclick="toggleDrawer()">☰</button>
+    <span class="app-name">BetterYou 🌱</span>
+    <div style="width:40px"></div>
+  </div>
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+  <div class="mobile-drawer" id="mobile-drawer"></div>
+
+  <!-- APP -->
+  <div id="app">
+    <div class="app-layout">
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="sidebar-brand">
+          <div class="logo">🌱</div>
+          <div class="name">BetterYou</div>
+        </div>
+        <div class="nav-items">
+          <div class="nav-item active" data-section="home" onclick="switchSection('home',this)"><span
+              class="icon">🏠</span>الرئيسية</div>
+          <div class="nav-item" data-section="planner" onclick="switchSection('planner',this)"><span
+              class="icon">📅</span>المخطط</div>
+          <div class="nav-item" data-section="journal" onclick="switchSection('journal',this)"><span
+              class="icon">📓</span>مذكرتي</div>
+          <div class="nav-item" data-section="goals" onclick="switchSection('goals',this)"><span
+              class="icon">🎯</span>أهداف</div>
+          <div class="nav-item" data-section="notes" onclick="switchSection('notes',this)"><span
+              class="icon">📌</span>ملاحظات</div>
+          <div class="nav-item" data-section="pomodoro" onclick="switchSection('pomodoro',this)"><span
+              class="icon">🍅</span>تركيز</div>
+          <div class="nav-item" data-section="yt" onclick="switchSection('yt',this)"><span
+              class="icon">🎬</span>يوتيوب</div>
+        </div>
+        <div class="nav-bottom">
+          <div class="dark-toggle-btn" onclick="toggleDarkMode()"><span>🌙 الوضع الداكن</span>
+            <div class="toggle-sw" id="dark-toggle"></div>
+          </div>
+          <div class="logout-btn" onclick="handleLogout()">🚪 تسجيل خروج</div>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+
+        <!-- HOME SECTION -->
+        <div class="section" id="sec-home">
+          <div class="greeting-card card" style="margin-bottom:20px">
+            <div class="greeting-text" id="greeting-text"></div>
+            <div class="greeting-date" id="greeting-date"></div>
+            <button class="add-habit-btn" style="margin-top:14px" onclick="openHabitModal()">+ إضافة عادة</button>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-main">
+              <div class="filter-tabs">
+                <button class="filter-tab active" onclick="setFilter('all',this)">الكل</button>
+                <button class="filter-tab" onclick="setFilter('positive',this)">🟢 إيجابية</button>
+                <button class="filter-tab" onclick="setFilter('negative',this)">🔴 سلبية</button>
+              </div>
+              <div class="card daily-score-pill" id="daily-score-pill">اليوم: 0% 🎯</div>
+              <div class="motivation-banner" id="motivation-banner">🌱 كل يوم خطوة نحو نسخة أفضل منك</div>
+              <div id="habits-list"></div>
+            </div>
+            <div class="dash-side">
+              <div class="card">
+                <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">📊 نتيجة اليوم</h3>
+                <div class="donut-wrap">
+                  <div class="donut"><svg viewBox="0 0 160 160">
+                      <circle class="bg-ring" cx="80" cy="80" r="66" />
+                      <circle class="fg-ring" id="donut-ring" cx="80" cy="80" r="66" stroke-dasharray="414.69"
+                        stroke-dashoffset="414.69" />
+                    </svg>
+                    <div class="donut-label"><span class="donut-pct" id="donut-pct">0%</span><span
+                        class="donut-sub">نسبة الإنجاز</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">📈 آخر 7 أيام</h3>
+                <div class="bar-chart" id="bar-chart"></div>
+              </div>
+              <div class="card widget" id="mood-widget">
+                <h4>😊 المزاج اليوم</h4>
+                <div class="mood-selector" style="margin-bottom:0" id="dash-mood-sel"></div>
+              </div>
+              <div class="card widget" id="upcoming-widget">
+                <h4>📅 الأحداث القادمة</h4>
+                <div id="upcoming-list"></div>
+              </div>
+              <div class="card widget" id="focus-widget">
+                <h4>🍅 التركيز اليوم</h4>
+                <div id="focus-summary"></div>
+              </div>
+              <div class="cal-card">
+                <div class="cal-header">
+                  <h3 id="cal-month-label"></h3>
+                  <div class="cal-nav"><button onclick="changeMonth(-1)">‹</button><button
+                      onclick="changeMonth(1)">›</button></div>
+                </div>
+                <div class="cal-weekdays">
+                  <span>أح</span><span>اث</span><span>ثل</span><span>أر</span><span>خم</span><span>جم</span><span>سب</span>
+                </div>
+                <div class="cal-days" id="cal-days"></div>
+              </div>
+              <div class="card widget" id="goals-widget">
+                <h4>🎯 أهداف الأسبوع</h4>
+                <div class="mini-progress">
+                  <div class="mini-progress-bar" id="goals-mini-bar" style="width:0%"></div>
+                </div>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:6px" id="goals-mini-text">0/0</p>
+              </div>
+              <div class="card widget" id="yt-widget">
+                <h4>🎬 مسار التعلم</h4>
+                <div class="widget-row">
+                  <span id="yt-widget-vids">0 فيديو منتهي</span>
+                  <span style="margin-right:auto;font-size:12px;color:var(--text-faint)" id="yt-widget-pct">0%</span>
+                </div>
+                <div class="mini-progress" style="margin-top:6px;margin-bottom:10px">
+                  <div class="mini-progress-bar" id="yt-mini-bar" style="width:0%; background: #eab308"></div>
+                </div>
+                <button class="btn-primary" style="width:100%;font-size:12px;padding:8px" onclick="switchSection('yt',document.querySelector('[data-section=yt]'))">أكمل مشاهدتك</button>
+              </div>
+              <div class="card">
+                <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">🔥 أعلى السلاسل</h3>
+                <div id="top-streaks-list"></div>
+              </div>
+              <div class="card">
+                <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">📋 نسب النجاح</h3>
+                <div id="success-rates-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLANNER SECTION -->
+        <div class="section hidden" id="sec-planner">
+          <div class="section-header">
+            <h1>📅 المخطط اليومي</h1>
+            <p>نظّم يومك بحرية</p>
+          </div>
+          <div class="planner-date-nav"><button onclick="changePlannerDate(-1)">›</button>
+            <h2 id="planner-date-label"></h2><button onclick="changePlannerDate(1)">‹</button><button class="btn-today"
+              onclick="plannerToday()">اليوم</button>
+          </div>
+          <div id="planner-summary" style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:16px">
+          </div>
+          <div class="timeline-track" id="timeline-track"></div>
+          <div class="block-cards" id="block-cards"></div>
+          <div id="add-block-area"></div>
+        </div>
+
+        <!-- JOURNAL SECTION -->
+        <div class="section hidden" id="sec-journal">
+          <div class="section-header">
+            <h1>📓 مذكرتي</h1>
+            <p>سجّل أفكارك ومشاعرك</p>
+          </div>
+          <div class="planner-date-nav"><button onclick="changeJournalDate(-1)">›</button>
+            <h2 id="journal-date-label"></h2><button onclick="changeJournalDate(1)">‹</button><button class="btn-today"
+              onclick="journalToday()">اليوم</button>
+          </div>
+          <div class="mood-selector" id="journal-mood-sel"></div>
+          <div class="card" style="padding:4px"><textarea class="journal-textarea" id="journal-textarea"
+              placeholder="شنو صار اليوم؟ كيف تحس؟ شنو تعلمت؟..."></textarea></div>
+          <div class="journal-footer"><span class="save-indicator" id="journal-save">✓ حُفظ</span><span
+              id="journal-word-count">0 كلمة</span></div>
+          <h4 style="margin-top:24px;font-size:14px;font-weight:700">📅 سجل المذكرات</h4>
+          <div class="past-entries" id="past-entries"></div>
+        </div>
+
+        <!-- GOALS SECTION -->
+        <div class="section hidden" id="sec-goals">
+          <div class="section-header">
+            <h1>🎯 أهداف الأسبوع</h1>
+            <p>حدد أهدافك وتابع إنجازها</p>
+          </div>
+          <div class="week-nav"><button onclick="changeGoalsWeek(-1)">›</button>
+            <h2 id="goals-week-label"></h2><button onclick="changeGoalsWeek(1)">‹</button>
+          </div>
+          <div class="goals-layout">
+            <div>
+              <div class="goal-input-row"><input id="goal-input" placeholder="أضف هدف جديد..." maxlength="100"><button
+                  class="btn-primary" onclick="addGoal()">إضافة</button></div>
+              <div id="goals-list"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+              <div class="donut" style="width:140px;height:140px"><svg viewBox="0 0 160 160">
+                  <circle class="bg-ring" cx="80" cy="80" r="66" />
+                  <circle class="fg-ring" id="goals-ring" cx="80" cy="80" r="66" stroke-dasharray="414.69"
+                    stroke-dashoffset="414.69" />
+                </svg>
+                <div class="donut-label"><span class="donut-pct" id="goals-pct">0%</span><span
+                    class="donut-sub">مكتمل</span></div>
+              </div>
+              <p style="font-size:14px;font-weight:600;text-align:center" id="goals-motivation">ابدأ أسبوعك بقوة 💪</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTES SECTION -->
+        <div class="section hidden" id="sec-notes">
+          <div class="section-header">
+            <h1>📌 ملاحظات سريعة</h1>
+            <p>دوّن أفكارك في أي وقت</p>
+          </div>
+          <div class="notes-top"><input class="notes-search" id="notes-search" placeholder="🔍 بحث..."
+              oninput="renderNotes()"><button class="btn-primary" onclick="createNote()">+ ملاحظة جديدة</button></div>
+          <div class="notes-grid" id="notes-grid"></div>
+        </div>
+
+        <!-- POMODORO SECTION -->
+        <div class="section hidden" id="sec-pomodoro">
+          <div class="section-header">
+            <h1>🍅 وقت التركيز</h1>
+            <p>ركّز بعمق مع تقنية بومودورو</p>
+          </div>
+          <div class="pomo-layout">
+            <input class="pomo-task-input" id="pomo-task" placeholder="ماذا ستركز عليه الآن؟">
+            <div class="pomo-modes"><button class="pomo-mode active" data-mode="focus"
+                onclick="setPomoMode('focus',this)">🍅 بومودورو<span class="pomo-mode-dur" id="pomo-dur-focus">25
+                  د</span></button><button class="pomo-mode" data-mode="short" onclick="setPomoMode('short',this)">☕
+                راحة قصيرة<span class="pomo-mode-dur" id="pomo-dur-short">5 د</span></button><button class="pomo-mode"
+                data-mode="long" onclick="setPomoMode('long',this)">🌿 راحة طويلة<span class="pomo-mode-dur"
+                  id="pomo-dur-long">15 د</span></button></div>
+            <div class="pomo-timer-circle"><svg viewBox="0 0 260 260">
+                <circle class="bg-ring" cx="130" cy="130" r="115" />
+                <circle class="fg-ring" id="pomo-ring" cx="130" cy="130" r="115" stroke-dasharray="722.57"
+                  stroke-dashoffset="0" />
+              </svg>
+              <div class="pomo-timer-label"><span class="pomo-time" id="pomo-time">25:00</span><span
+                  class="pomo-mode-label" id="pomo-mode-label">تركيز 🧠</span></div>
+            </div>
+            <div class="pomo-controls"><button class="pomo-ctrl" onclick="resetPomo()">⏹</button><button
+                class="pomo-ctrl start" id="pomo-start-btn" onclick="togglePomo()">▶️</button><span></span></div>
+            <div class="pomo-cycles" id="pomo-cycles"></div>
+            <div class="pomo-stats">
+              <div class="pomo-stat">
+                <div class="pomo-stat-val" id="pomo-today-cycles">0</div>
+                <div class="pomo-stat-label">دورات اليوم</div>
+              </div>
+              <div class="pomo-stat">
+                <div class="pomo-stat-val" id="pomo-today-mins">0</div>
+                <div class="pomo-stat-label">دقائق التركيز</div>
+              </div>
+              <div class="pomo-stat">
+                <div class="pomo-stat-val" id="pomo-week-total">0</div>
+                <div class="pomo-stat-label">دورات الأسبوع</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- YOUTUBE LEARNING SECTION -->
+        <div class="section hidden" id="sec-yt">
+          <div class="section-header">
+            <h1>🎬 تعلم يوتيوب</h1>
+            <p>نظّم الفيديوهات التعليمية، تتبع تقدمك، وخذ ملاحظات ذكية</p>
+          </div>
+          
+          <!-- Add Tabs -->
+          <div style="display:flex; gap:8px; margin-bottom:16px">
+            <button class="btn-primary" id="yt-tab-video" onclick="switchYtTab('video')" style="flex:1; padding:10px">📹 إضافة فيديو واحد</button>
+            <button class="btn-primary" id="yt-tab-playlist" onclick="switchYtTab('playlist')" style="flex:1; padding:10px; background:var(--bg2); color:var(--text)">📋 استيراد قائمة تشغيل</button>
+          </div>
+
+          <!-- Single Video Tab -->
+          <div class="yt-add-video" id="yt-add-video-area">
+            <input type="text" id="yt-new-url" placeholder="ألصق رابط فيديو من يوتيوب هنا..." style="color:var(--text)">
+            <input type="text" id="yt-new-title" placeholder="عنوان الفيديو (اختياري)" style="width:200px; color:var(--text); padding:12px; border-radius:var(--radius-sm); background:var(--bg2)">
+            <button class="btn-primary" onclick="addYtVideo()">إضافة فيديو</button>
+          </div>
+
+          <!-- Playlist Import Tab -->
+          <div class="yt-add-video hidden" id="yt-import-playlist-area">
+            <input type="text" id="yt-playlist-url" placeholder="ألصق رابط قائمة تشغيل يوتيوب هنا..." style="color:var(--text)">
+            <input type="text" id="yt-playlist-name" placeholder="اسم القائمة" style="width:200px; color:var(--text); padding:12px; border-radius:var(--radius-sm); background:var(--bg2)">
+            <button class="btn-primary" onclick="importYtPlaylist()" id="yt-import-btn">📥 استيراد</button>
+          </div>
+
+          <div class="yt-layout">
+            <div class="yt-playlists">
+              <h3 style="font-size:15px; margin-bottom: 8px;">📚 قوائم التشغيل</h3>
+              <div id="yt-playlists-container"></div>
+              <button class="yt-add-playlist" onclick="openPlaylistModal()">+ قائمة فارغة جديدة</button>
+            </div>
+            <div class="yt-videos" id="yt-videos-container">
+              <!-- Videos generated via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer
+          style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-light); font-size: 13px; color: var(--text-faint); font-weight: 600;">
+          <div style="margin-bottom: 6px;">
+            بواسطة <span
+              style="font-family: 'Cairo Play', sans-serif; font-weight: 800; color: var(--text-muted);">Ameer Aater</span>
+          </div>
+          <a href="https://t.me/iatnt" target="_blank"
+            style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;">
+              <path d="M22 2L11 13"></path>
+              <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+            </svg>
+            @iatnt
+          </a>
+        </footer>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+
+  <script>
+
+    const API = '';
+    const ICONS = ['📚', '🏃', '💪', '🧘', '📖', '💧', '🚭', '📵', '🍎', '🎯', '🏋️', '🧠', '💤', '🎨', '🎵', '✍️', '🥗', '🚿', '👨‍💻', '🤝'];
+    const CATEGORIES = ['صحة', 'تعلم', 'إنتاجية', 'عقلية', 'أخرى'];
+    const NOTE_COLORS = ['#fff4ed', '#f0fdf4', '#eff6ff', '#f5f3ff', '#fdf2f8', '#fefce8'];
+    const BLOCK_COLORS = ['#f97316', '#16a34a', '#3b82f6', '#7c3aed', '#ec4899', '#eab308'];
+    const MOODS = ['😔', '😕', '😐', '🙂', '😄'];
+
+    const S = {
+      user: null, token: null, habits: [], logs: [], analytics: null, selectedDate: todayStr(), currentMonth: todayStr().slice(0, 7), darkMode: false, filter: 'all', calendarData: {}, calendarEnrich: {},
+      plannerDate: todayStr(), plannerBlocks: [], journalDate: todayStr(), journalEntry: null,
+      goalsWeekStart: getMonday(new Date()), goalItems: [], notes: [],
+      pomoMode: 'focus', pomoRunning: false, pomoTimeLeft: 25 * 60, pomoInterval: null, pomoCycles: 0, pomoDurations: { focus: 25, short: 5, long: 15 }, pomoStats: {},
+      ytPlaylists: [], ytVideos: [], ytNotes: [], ytStats: null, selectedPlaylistId: null
+    };
+
+    function todayStr() { return new Date().toISOString().split('T')[0] }
+    function getMonday(d) { const dt = new Date(d); const day = dt.getDay(); const diff = dt.getDate() - day + (day === 0 ? -6 : 1); dt.setDate(diff); return dt.toISOString().split('T')[0] }
+
+    function showToast(msg, type = 'success') { const c = document.getElementById('toast-container'); const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t); setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300) }, 3000) }
+
+    function confettiBurst(el) { const r = el.getBoundingClientRect(); const c = document.createElement('div'); c.className = 'confetti-container'; c.style.left = r.left + r.width / 2 + 'px'; c.style.top = r.top + r.height / 2 + 'px'; c.style.position = 'fixed'; const colors = ['#f97316', '#16a34a', '#3b82f6', '#ec4899', '#eab308', '#7c3aed']; for (let i = 0; i < 6; i++) { const dot = document.createElement('div'); dot.className = 'confetti-dot'; const angle = (i / 6) * 360; const dist = 30 + Math.random() * 20; dot.style.background = colors[i]; dot.style.setProperty('--tx', Math.cos(angle * Math.PI / 180) * dist + 'px'); dot.style.setProperty('--ty', Math.sin(angle * Math.PI / 180) * dist + 'px'); c.appendChild(dot) } document.body.appendChild(c); setTimeout(() => c.remove(), 700) }
+
+    async function apiFetch(url, opts = {}) { const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) }; if (S.token) headers['Authorization'] = `Bearer ${S.token}`; try { const res = await fetch(API + url, { ...opts, headers }); if (res.status === 401) { handleLogout(); return null } const data = await res.json(); if (!res.ok) { showToast(data.error || 'خطأ', 'error'); return null } return data } catch (e) { showToast('خطأ في الاتصال', 'error'); return null } }
+
+    // ── Auth ──
+    function switchAuthTab(tab) { document.getElementById('tab-login').classList.toggle('active', tab === 'login'); document.getElementById('tab-register').classList.toggle('active', tab === 'register'); document.getElementById('auth-form-login').classList.toggle('hidden', tab !== 'login'); document.getElementById('auth-form-register').classList.toggle('hidden', tab !== 'register') }
+
+    async function handleLogin() { const btn = document.getElementById('login-btn'); const email = document.getElementById('login-email').value.trim(); const pw = document.getElementById('login-password').value; if (!email || !pw) return showToast('أدخل البريد وكلمة المرور', 'error'); btn.disabled = true; btn.textContent = 'جاري...'; const d = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password: pw }) }); btn.disabled = false; btn.textContent = 'تسجيل الدخول'; if (d) { S.token = d.token; S.user = d.user; localStorage.setItem('by_token', d.token); localStorage.setItem('by_user', JSON.stringify(d.user)); showApp() } }
+
+    async function handleRegister() { const btn = document.getElementById('reg-btn'); const name = document.getElementById('reg-name').value.trim(); const email = document.getElementById('reg-email').value.trim(); const pw = document.getElementById('reg-password').value; if (!name || !email || !pw) return showToast('أكمل الحقول', 'error'); btn.disabled = true; btn.textContent = 'جاري...'; const d = await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password: pw }) }); btn.disabled = false; btn.textContent = 'إنشاء حساب'; if (d) { S.token = d.token; S.user = d.user; localStorage.setItem('by_token', d.token); localStorage.setItem('by_user', JSON.stringify(d.user)); showApp(); showToast('تم إنشاء الحساب 🎉') } }
+
+    function handleLogout() { S.user = null; S.token = null; S.habits = []; S.logs = []; localStorage.removeItem('by_token'); localStorage.removeItem('by_user'); document.getElementById('app').style.display = 'none'; document.getElementById('auth-screen').style.display = 'flex' }
+
+    // ── App Init ──
+    async function showApp() { document.getElementById('auth-screen').style.display = 'none'; document.getElementById('app').style.display = 'block'; updateGreeting(); await Promise.all([loadHabits(), loadLogs(), loadAnalytics(), loadCalendar(), loadCalendarEnrich(), loadPomoStats(), loadGoalsForWidget(), loadUpcomingEvents(), loadYtData()]); renderAll() }
+
+    function updateGreeting() { const h = new Date().getHours(); const name = S.user?.name || ''; let g; if (h < 12) g = `صباح النور ☀️ ${name}`; else if (h < 17) g = `مساء الخير 🌤️ ${name}`; else g = `مساء النور 🌙 ${name}`; document.getElementById('greeting-text').textContent = g; const d = new Date(); document.getElementById('greeting-date').textContent = d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }
+
+    // ── Data Loading ──
+    async function loadHabits() { const d = await apiFetch('/api/habits'); if (d) S.habits = d }
+    async function loadLogs() { const d = await apiFetch(`/api/logs?date=${S.selectedDate}`); if (d) S.logs = d }
+    async function loadAnalytics() { const d = await apiFetch('/api/analytics'); if (d) S.analytics = d }
+    async function loadCalendar() { const d = await apiFetch(`/api/analytics/calendar?month=${S.currentMonth}`); if (d) S.calendarData = d }
+    async function loadCalendarEnrich() { const d = await apiFetch(`/api/calendar/enrichment?month=${S.currentMonth}`); if (d) S.calendarEnrich = d }
+    async function loadPomoStats() { const d = await apiFetch('/api/pomodoro/stats'); if (d) S.pomoStats = d }
+    async function loadUpcomingEvents() { const d = await apiFetch('/api/events/upcoming'); if (d) S.upcomingEvents = d }
+    async function loadGoalsForWidget() { const ws = getMonday(new Date()); const d = await apiFetch(`/api/goals?weekStart=${ws}`); if (d) S.widgetGoals = d }
+
+    async function loadYtData() { const stats = await apiFetch('/api/yt/stats'); if (stats) S.ytStats = stats; }
+
+    function renderAll() { renderHabits(); renderAnalytics(); renderCalendar(); renderMotivation(); renderDashMood(); renderUpcoming(); renderFocusWidget(); renderGoalsWidget(); renderPomoCycles(); renderPomoStats(); renderYtWidget() }
+
+    // ── Navigation ──
+    function switchSection(name, el) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden')); document.getElementById('sec-' + name).classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); if (el) el.classList.add('active');
+      if (name === 'planner') initPlanner(); if (name === 'journal') initJournal(); if (name === 'goals') initGoals(); if (name === 'notes') initNotes(); if (name === 'pomodoro') initPomodoro(); if (name === 'yt') initYt(); if (name === 'home') { loadAnalytics().then(renderAll) } toggleDrawer(true)
+    }
+
+    function toggleDrawer(close) { const d = document.getElementById('mobile-drawer'); const o = document.getElementById('drawer-overlay'); if (close || d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open') } else { d.innerHTML = document.getElementById('sidebar-nav').innerHTML; d.classList.add('open'); o.classList.add('open') } }
+
+    // ── Filter ──
+    function setFilter(f, el) { S.filter = f; document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderHabits() }
+
+    // ── Habits ──
+    function renderHabits() {
+      const list = document.getElementById('habits-list'); let habits = S.habits; if (S.filter !== 'all') habits = habits.filter(h => h.type === S.filter); if (!habits.length) { list.innerHTML = `<div class="empty-state"><span class="es-icon">📝</span><p>${S.habits.length === 0 ? 'يومك فارغ... ابدأ بعادة جديدة 🌱' : 'لا توجد عادات في هذا التصنيف'}</p></div>`; return }
+      list.innerHTML = habits.map((h, i) => {
+        const log = S.logs.find(l => l.habitId === h.id); const st = log?.status || 'pending'; const streak = S.analytics?.streaks?.[h.id] || 0; const rate = S.analytics?.successRates?.[h.id] || 0; const pos = h.type === 'positive';
+        return `<div class="habit-card" data-type="${h.type}" style="animation-delay:${i * .05}s"><div class="habit-icon ${h.type}">${h.icon}</div><div class="habit-info"><div class="habit-title">${h.title}</div><div class="habit-meta"><span class="habit-badge ${h.type}">${pos ? 'إيجابية' : 'سلبية'}</span><span class="streak-badge ${streak >= 5 ? 'glow' : ''}">🔥 ${streak}</span></div><div class="habit-progress"><div class="habit-progress-bar" style="width:${rate}%"></div></div></div><div class="habit-actions">${pos ? `<button class="habit-action-btn ${st === 'done' ? 'done-active' : ''}" onclick="logHabit('${h.id}','done',this)">✅</button><button class="habit-action-btn ${st === 'missed' ? 'miss-active' : ''}" onclick="logHabit('${h.id}','missed',this)">❌</button>` : `<button class="habit-action-btn ${st === 'resisted' ? 'resist-active' : ''}" onclick="logHabit('${h.id}','resisted',this)">🚫</button><button class="habit-action-btn ${st === 'failed' ? 'fail-active' : ''}" onclick="logHabit('${h.id}','failed',this)">💀</button>`}</div><button class="habit-edit-btn" onclick="openHabitModal('${h.id}')">✏️</button></div>`
+      }).join('')
+    }
+
+    async function logHabit(habitId, status, btn) { if (status === 'done' || status === 'resisted') confettiBurst(btn); const d = await apiFetch('/api/logs', { method: 'POST', body: JSON.stringify({ habitId, date: S.selectedDate, status }) }); if (d) { await Promise.all([loadLogs(), loadAnalytics(), loadCalendar()]); renderAll(); showToast(status === 'done' || status === 'resisted' ? 'أحسنت! 🎉' : 'لا بأس، حاول غداً 💪') } }
+
+    // ── Analytics ──
+    function renderAnalytics() {
+      const a = S.analytics; if (!a) return; document.getElementById('daily-score-pill').textContent = `اليوم: ${a.todayScore}% 🎯`; const circ = 2 * Math.PI * 66; const off = circ - (circ * a.todayScore / 100); const ring = document.getElementById('donut-ring'); ring.style.strokeDasharray = circ; setTimeout(() => ring.style.strokeDashoffset = off, 100); document.getElementById('donut-pct').textContent = a.todayScore + '%';
+      const bc = document.getElementById('bar-chart'); bc.innerHTML = (a.weeklyData || []).map(d => `<div class="bar-col"><div class="bar" style="height:${Math.max(4, d.score * 1.1)}%"></div><div class="bar-label">${(d.dayName || '').slice(0, 2)}</div></div>`).join('');
+      const ts = document.getElementById('top-streaks-list'); const ss = S.habits.map(h => ({ ...h, streak: a.streaks?.[h.id] || 0 })).sort((x, y) => y.streak - x.streak).slice(0, 4); ts.innerHTML = ss.length ? ss.map(h => `<div class="streak-item"><span class="s-icon">${h.icon}</span><div class="s-info"><div class="s-name">${h.title}</div></div><span class="s-count">🔥 ${h.streak}</span></div>`).join('') : '<p style="color:var(--text-faint);font-size:12px;text-align:center;padding:8px">لا توجد سلاسل بعد</p>';
+      const sr = document.getElementById('success-rates-list'); const rr = S.habits.map(h => ({ ...h, rate: a.successRates?.[h.id] || 0 })).sort((x, y) => y.rate - x.rate).slice(0, 4); sr.innerHTML = rr.length ? rr.map(h => `<div class="rate-item"><span class="r-icon">${h.icon}</span><div class="r-info"><div class="r-name">${h.title}</div><div class="r-bar"><div class="r-fill" style="width:${h.rate}%"></div></div></div><span class="r-pct">${h.rate}%</span></div>`).join('') : '<p style="color:var(--text-faint);font-size:12px;text-align:center;padding:8px">لا توجد بيانات</p>'
+    }
+
+    function renderMotivation() { const a = S.analytics; if (!a) return; let msg = '🌱 كل يوم خطوة نحو نسخة أفضل منك'; const mx = Math.max(0, ...Object.values(a.streaks || {})); if (mx >= 7) msg = '🔥 أسبوع كامل! العادة أصبحت جزءاً منك'; else if (a.todayScore === 100 && a.totalHabits > 0) msg = '🏆 يوم مثالي! أنت تتحكم في حياتك'; else if (a.todayScore === 0 && a.totalHabits > 0) msg = '💪 يوم صعب؟ الاستمرار هو الفرق الحقيقي'; else if (a.todayScore >= 50) msg = '✨ أكثر من النصف — استمر!'; else if (S.logs.some(l => l.status === 'resisted')) msg = '🚫 أصعب لحظة هي الأولى — تخطيتها!'; document.getElementById('motivation-banner').textContent = msg }
+
+    // ── Calendar ──
+    function renderCalendar() { const [y, m] = S.currentMonth.split('-').map(Number); const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']; document.getElementById('cal-month-label').textContent = `${months[m - 1]} ${y}`; const firstDay = new Date(y, m - 1, 1).getDay(); const dim = new Date(y, m, 0).getDate(); const today = todayStr(); const en = S.calendarEnrich || {}; let html = ''; for (let i = 0; i < firstDay; i++)html += `<div class="cal-day empty"></div>`; for (let d = 1; d <= dim; d++) { const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; const sc = S.calendarData[ds]; let cls = ''; if (sc === 0) cls = 'score-0'; else if (sc != null && sc < 50) cls = 'score-low'; else if (sc != null && sc < 100) cls = 'score-mid'; else if (sc === 100) cls = 'score-full'; if (ds === today) cls += ' today'; if (ds === S.selectedDate) cls += ' selected'; html += `<div class="cal-day ${cls}" onclick="selectDate('${ds}')">${d}</div>` } document.getElementById('cal-days').innerHTML = html }
+
+    function changeMonth(dir) { const [y, m] = S.currentMonth.split('-').map(Number); const nd = new Date(y, m - 1 + dir, 1); S.currentMonth = nd.toISOString().slice(0, 7); Promise.all([loadCalendar(), loadCalendarEnrich()]).then(() => renderCalendar()) }
+
+    async function selectDate(ds) { S.selectedDate = ds; await loadLogs(); renderHabits(); renderCalendar() }
+
+    // ── Dashboard Widgets ──
+    function renderDashMood() { const sel = document.getElementById('dash-mood-sel'); sel.innerHTML = MOODS.map((m, i) => `<button class="mood-btn" onclick="saveDashMood(${i + 1},this)">${m}</button>`).join(''); apiFetch(`/api/journal?date=${todayStr()}`).then(d => { if (d?.mood) { const btns = sel.querySelectorAll('.mood-btn'); if (btns[d.mood - 1]) btns[d.mood - 1].classList.add('selected') } }) }
+    async function saveDashMood(mood, btn) { btn.parentElement.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); await apiFetch('/api/journal', { method: 'POST', body: JSON.stringify({ date: todayStr(), mood }) }) }
+
+    function renderUpcoming() { const el = document.getElementById('upcoming-list'); const evts = S.upcomingEvents || []; if (!evts.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text-faint)">لا توجد أحداث قادمة</p>'; return } el.innerHTML = evts.map(e => `<div class="widget-row"><span style="color:${e.color || 'var(--primary)'};font-size:16px">●</span><span style="flex:1;font-size:13px">${e.title}</span><span style="font-size:11px;color:var(--text-faint)">${e.date.slice(5)}</span></div>`).join('') }
+
+    function renderFocusWidget() { const el = document.getElementById('focus-summary'); const st = S.pomoStats || {}; el.innerHTML = `<div class="widget-row"><span>🍅 ${st.todayCycles || 0} دورات</span><span style="margin-right:auto;font-size:12px;color:var(--text-faint)">${st.todayFocusMinutes || 0} دقيقة</span></div><button class="btn-primary" style="width:100%;margin-top:8px;font-size:12px;padding:8px" onclick="switchSection('pomodoro',document.querySelector('[data-section=pomodoro]'))">ابدأ جلسة تركيز</button>` }
+
+    function renderGoalsWidget() { const g = S.widgetGoals; if (!g?.items?.length) { document.getElementById('goals-mini-bar').style.width = '0%'; document.getElementById('goals-mini-text').textContent = 'لا توجد أهداف'; return } const done = g.items.filter(i => i.completed).length; const pct = Math.round(done / g.items.length * 100); document.getElementById('goals-mini-bar').style.width = pct + '%'; document.getElementById('goals-mini-text').textContent = `${done}/${g.items.length} مكتمل` }
+
+    // ── Habit Modal ──
+    function openHabitModal(editId) { const habit = editId ? S.habits.find(h => h.id === editId) : null; const root = document.getElementById('modal-root'); root.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><h2>${habit ? 'تعديل العادة' : 'إضافة عادة جديدة'}</h2><div class="modal-field"><label>عنوان العادة</label><input id="m-title" value="${habit?.title || ''}" placeholder="مثال: قراءة 30 دقيقة"></div><div class="modal-field"><label>النوع</label><div class="type-selector"><div class="type-option ${(!habit || habit.type === 'positive') ? 'selected' : ''}" onclick="selType(this,'positive')">🟢 إيجابية</div><div class="type-option ${habit?.type === 'negative' ? 'selected' : ''}" onclick="selType(this,'negative')">🔴 سلبية</div></div></div><div class="modal-field"><label>الأيقونة</label><div class="icon-grid">${ICONS.map(ic => `<div class="icon-option ${habit?.icon === ic ? 'selected' : ''}" onclick="selIcon(this,'${ic}')">${ic}</div>`).join('')}</div></div><div class="modal-field"><label>التصنيف</label><div class="cat-selector">${CATEGORIES.map(c => `<div class="cat-option ${habit?.category === c ? 'selected' : ''}" onclick="selCat(this,'${c}')">${c}</div>`).join('')}</div></div><div class="modal-actions"><button class="btn-save" onclick="saveHabit('${editId || ''}')">${habit ? 'حفظ' : 'إضافة'}</button><button class="btn-cancel" onclick="closeModal()">إلغاء</button></div>${habit ? `<button class="btn-delete" onclick="deleteHabit('${editId}')">🗑️ حذف</button>` : ''}</div></div>`; root._type = habit?.type || 'positive'; root._icon = habit?.icon || '🎯'; root._cat = habit?.category || 'أخرى' }
+    function closeModal() { document.getElementById('modal-root').innerHTML = '' }
+    function selType(el, t) { document.getElementById('modal-root')._type = t; el.parentElement.querySelectorAll('.type-option').forEach(e => e.classList.remove('selected')); el.classList.add('selected') }
+    function selIcon(el, ic) { document.getElementById('modal-root')._icon = ic; el.parentElement.querySelectorAll('.icon-option').forEach(e => e.classList.remove('selected')); el.classList.add('selected') }
+    function selCat(el, c) { document.getElementById('modal-root')._cat = c; el.parentElement.querySelectorAll('.cat-option').forEach(e => e.classList.remove('selected')); el.classList.add('selected') }
+    async function saveHabit(editId) { const root = document.getElementById('modal-root'); const title = document.getElementById('m-title').value.trim(); if (!title) return showToast('أدخل العنوان', 'error'); const body = { title, type: root._type, icon: root._icon, category: root._cat }; const d = editId ? await apiFetch(`/api/habits/${editId}`, { method: 'PUT', body: JSON.stringify(body) }) : await apiFetch('/api/habits', { method: 'POST', body: JSON.stringify(body) }); if (d) { closeModal(); await Promise.all([loadHabits(), loadAnalytics()]); renderAll(); showToast(editId ? 'تم التعديل ✏️' : 'تمت الإضافة 🎉') } }
+    async function deleteHabit(id) { if (!confirm('حذف هذه العادة؟')) return; const d = await apiFetch(`/api/habits/${id}`, { method: 'DELETE' }); if (d) { closeModal(); await Promise.all([loadHabits(), loadLogs(), loadAnalytics(), loadCalendar()]); renderAll(); showToast('تم الحذف 🗑️') } }
+
+    // ── Dark Mode ──
+    function toggleDarkMode() { S.darkMode = !S.darkMode; document.body.classList.toggle('dark', S.darkMode); document.getElementById('dark-toggle').classList.toggle('on', S.darkMode); localStorage.setItem('by_dark', S.darkMode) }
+
+    // ── PLANNER ──
+    async function initPlanner() { await loadPlannerData(); renderPlanner() }
+    async function loadPlannerData() { const d = await apiFetch(`/api/planner?date=${S.plannerDate}`); if (d) S.plannerBlocks = d.blocks || [] }
+    function renderPlanner() {
+      const d = new Date(S.plannerDate); document.getElementById('planner-date-label').textContent = d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const done = S.plannerBlocks.filter(b => b.completed).length; document.getElementById('planner-summary').textContent = `${S.plannerBlocks.length} مهام | ${done} مكتمل`;
+      
+      const track = document.getElementById('timeline-track');
+      const sortedBlocks = [...S.plannerBlocks].sort((a,b) => {
+          const sA = parseInt((a.startTime||'00:00').replace(':',''));
+          const sB = parseInt((b.startTime||'00:00').replace(':',''));
+          return sA - sB;
+      });
+      const levels = [];
+      const blocksWithLevel = sortedBlocks.map(b => {
+         const [sh,sm] = (b.startTime||'00:00').split(':').map(Number);
+         const startMin = sh*60 + sm;
+         const [eh,em] = (b.endTime||'01:00').split(':').map(Number);
+         const endMin = eh*60 + em;
+         let l = 0;
+         while(levels[l] && levels[l] > startMin) l++;
+         levels[l] = endMin;
+         return { ...b, startMin, endMin, level: l };
+      });
+      const trackHeight = Math.max(60, levels.length * 48 + 12);
+      track.style.height = trackHeight + 'px';
+
+      track.innerHTML = blocksWithLevel.map(b => { 
+        const left = (b.startMin / 1440) * 100; 
+        const w = Math.max(2, ((b.endMin - b.startMin) / 1440) * 100); 
+        return `<div class="timeline-block ${b.completed ? 'completed' : ''}" style="left:${left}%;width:${w}%;top:${b.level * 48 + 8}px;background:${b.color || '#f97316'}" title="${b.startTime} - ${b.endTime} | ${b.title}">${b.title}</div>` 
+      }).join('');
+      
+      const cards = document.getElementById('block-cards'); cards.innerHTML = S.plannerBlocks.map((b, i) => `<div class="block-card"><div class="block-color-dot" style="background:${b.color}"></div><div class="block-time">${b.startTime} – ${b.endTime}</div><div class="block-title ${b.completed ? 'completed' : ''}">${b.title}</div><div class="block-actions"><button onclick="toggleBlock(${i})">${b.completed ? '↩️' : '✅'}</button><button onclick="removeBlock(${i})">🗑</button></div></div>`).join('');
+      document.getElementById('add-block-area').innerHTML = `<div class="add-block-form"><input type="time" id="bl-start" value="09:00" style="width:110px"><input type="time" id="bl-end" value="10:00" style="width:110px"><input id="bl-title" placeholder="عنوان المهمة" style="flex:1;min-width:140px"><div class="color-swatches">${BLOCK_COLORS.map((c, i) => `<div class="color-swatch ${i === 0 ? 'selected' : ''}" style="background:${c}" onclick="selBlockColor(this,'${c}')"></div>`).join('')}</div><button class="btn-primary" onclick="addBlock()">+ إضافة</button></div>`; document.getElementById('add-block-area')._color = BLOCK_COLORS[0]
+    }
+    function selBlockColor(el, c) { el.parentElement.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); document.getElementById('add-block-area')._color = c }
+    async function addBlock() { const t = document.getElementById('bl-title').value.trim(); const s = document.getElementById('bl-start').value; const e = document.getElementById('bl-end').value; if (!t) return showToast('أدخل عنوان', 'error'); S.plannerBlocks.push({ id: Date.now().toString(), startTime: s, endTime: e, title: t, color: document.getElementById('add-block-area')._color, completed: false }); await savePlanner(); renderPlanner(); showToast('تمت الإضافة 📅') }
+    async function toggleBlock(i) { S.plannerBlocks[i].completed = !S.plannerBlocks[i].completed; await savePlanner(); renderPlanner() }
+    async function removeBlock(i) { S.plannerBlocks.splice(i, 1); await savePlanner(); renderPlanner() }
+    async function savePlanner() { await apiFetch('/api/planner', { method: 'POST', body: JSON.stringify({ date: S.plannerDate, blocks: S.plannerBlocks }) }) }
+    function changePlannerDate(dir) { const d = new Date(S.plannerDate); d.setDate(d.getDate() + dir); S.plannerDate = d.toISOString().split('T')[0]; initPlanner() }
+    function plannerToday() { S.plannerDate = todayStr(); initPlanner() }
+
+    // ── JOURNAL ──
+    let journalDebounce = null;
+    async function initJournal() { await loadJournalData(); renderJournal() }
+    async function loadJournalData() { const d = await apiFetch(`/api/journal?date=${S.journalDate}`); S.journalEntry = d }
+    function renderJournal() { const d = new Date(S.journalDate); document.getElementById('journal-date-label').textContent = d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); const sel = document.getElementById('journal-mood-sel'); sel.innerHTML = MOODS.map((m, i) => `<button class="mood-btn ${S.journalEntry?.mood === i + 1 ? 'selected' : ''}" onclick="setJournalMood(${i + 1},this)">${m}</button>`).join(''); const ta = document.getElementById('journal-textarea'); ta.value = S.journalEntry?.content || ''; ta.oninput = function () { document.getElementById('journal-word-count').textContent = (this.value.trim() ? this.value.trim().split(/\s+/).length : 0) + ' كلمة'; clearTimeout(journalDebounce); journalDebounce = setTimeout(() => saveJournal(), 1500) }; document.getElementById('journal-word-count').textContent = (ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0) + ' كلمة'; document.getElementById('journal-save').classList.remove('visible'); renderPastEntries() }
+    async function setJournalMood(mood, btn) { btn.parentElement.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); await apiFetch('/api/journal', { method: 'POST', body: JSON.stringify({ date: S.journalDate, mood }) }); showToast('تم حفظ المزاج') }
+    async function saveJournal() { const content = document.getElementById('journal-textarea').value; await apiFetch('/api/journal', { method: 'POST', body: JSON.stringify({ date: S.journalDate, content }) }); document.getElementById('journal-save').classList.add('visible'); setTimeout(() => document.getElementById('journal-save').classList.remove('visible'), 2000) }
+    function renderPastEntries() { const el = document.getElementById('past-entries'); let html = ''; for (let i = 0; i < 30; i++) { const d = new Date(); d.setDate(d.getDate() - i); const ds = d.toISOString().split('T')[0]; const isCur = ds === S.journalDate; html += `<div class="past-day ${isCur ? 'current' : ''}" onclick="goJournalDate('${ds}')">${d.getDate()}</div>` } el.innerHTML = html }
+    function changeJournalDate(dir) { const d = new Date(S.journalDate); d.setDate(d.getDate() + dir); S.journalDate = d.toISOString().split('T')[0]; initJournal() }
+    function journalToday() { S.journalDate = todayStr(); initJournal() }
+    function goJournalDate(ds) { S.journalDate = ds; initJournal() }
+
+    // ── GOALS ──
+    async function initGoals() { await loadGoalsData(); renderGoals() }
+    async function loadGoalsData() { const d = await apiFetch(`/api/goals?weekStart=${S.goalsWeekStart}`); S.goalItems = d?.items || [] }
+    function renderGoals() {
+      const ws = new Date(S.goalsWeekStart); const we = new Date(ws); we.setDate(we.getDate() + 6); document.getElementById('goals-week-label').textContent = `${ws.getDate()} – ${we.getDate()} ${ws.toLocaleDateString('ar-EG', { month: 'long' })}`;
+      const list = document.getElementById('goals-list'); const pending = S.goalItems.filter(g => !g.completed); const done = S.goalItems.filter(g => g.completed); const all = [...pending, ...done]; if (!all.length) { list.innerHTML = '<div class="empty-state"><span class="es-icon">🎯</span><p>لا توجد أهداف هذا الأسبوع — ابدأ بإضافة هدف!</p></div>'; updateGoalsRing(); return }
+      list.innerHTML = all.map(g => `<div class="goal-item ${g.completed ? 'completed' : ''}"><div class="goal-check ${g.completed ? 'checked' : ''}" onclick="toggleGoal('${g.id}')">${g.completed ? '✓' : ''}</div><span class="goal-text ${g.completed ? 'done' : ''}">${g.text}</span><button class="goal-del" onclick="deleteGoal('${g.id}')">🗑</button></div>`).join(''); updateGoalsRing()
+    }
+    function updateGoalsRing() { const total = S.goalItems.length; const done = S.goalItems.filter(g => g.completed).length; const pct = total ? Math.round(done / total * 100) : 0; const circ = 2 * Math.PI * 66; document.getElementById('goals-ring').style.strokeDashoffset = circ - (circ * pct / 100); document.getElementById('goals-pct').textContent = pct + '%'; let msg = 'ابدأ أسبوعك بقوة 💪'; if (pct === 100 && total > 0) msg = 'أسبوع استثنائي! 🏆'; else if (pct >= 50) msg = 'أكثر من النصف! 🔥'; else if (pct > 0) msg = 'في الطريق الصح 🚶'; document.getElementById('goals-motivation').textContent = msg }
+    async function addGoal() { const inp = document.getElementById('goal-input'); const text = inp.value.trim(); if (!text) return; if (S.goalItems.length >= 7) return showToast('الحد الأقصى 7 أهداف', 'error'); S.goalItems.push({ id: Date.now().toString(), text, completed: false }); await saveGoals(); inp.value = ''; renderGoals(); showToast('تمت إضافة الهدف 🎯') }
+    async function toggleGoal(id) { const g = S.goalItems.find(x => x.id === id); if (g) g.completed = !g.completed; await saveGoals(); renderGoals() }
+    async function deleteGoal(id) { S.goalItems = S.goalItems.filter(x => x.id !== id); await saveGoals(); renderGoals() }
+    async function saveGoals() { await apiFetch('/api/goals', { method: 'POST', body: JSON.stringify({ weekStart: S.goalsWeekStart, items: S.goalItems }) }) }
+    function changeGoalsWeek(dir) { const d = new Date(S.goalsWeekStart); d.setDate(d.getDate() + dir * 7); S.goalsWeekStart = d.toISOString().split('T')[0]; initGoals() }
+
+    // ── NOTES ──
+    async function initNotes() { const d = await apiFetch('/api/notes'); if (d) S.notes = d; renderNotes() }
+    function renderNotes() {
+      const q = (document.getElementById('notes-search')?.value || '').toLowerCase(); let notes = S.notes; if (q) notes = notes.filter(n => (n.title + n.content).toLowerCase().includes(q)); const grid = document.getElementById('notes-grid'); if (!notes.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span class="es-icon">📌</span><p>لا توجد ملاحظات — أضف أولى أفكارك ✨</p></div>'; return }
+      grid.innerHTML = notes.map(n => { const ago = timeAgo(n.updatedAt); return `<div class="note-card" style="background:${n.color}" data-id="${n.id}"><input class="note-title-input" value="${esc(n.title)}" placeholder="عنوان..." onblur="updateNote('${n.id}',this.value,null)"><textarea class="note-content-input" placeholder="اكتب هنا..." onblur="updateNote('${n.id}',null,this.value)">${esc(n.content)}</textarea><div class="note-footer"><span>${ago}</span><div class="note-actions"><button onclick="togglePin('${n.id}')" title="تثبيت">${n.pinned ? '📌' : '📍'}</button><button onclick="deleteNote('${n.id}')" title="حذف">🗑</button></div></div></div>` }).join('')
+    }
+    function esc(s) { return (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+    function timeAgo(d) { if (!d) return ''; const diff = Math.floor((Date.now() - new Date(d)) / 86400000); if (diff === 0) return 'اليوم'; if (diff === 1) return 'أمس'; return `منذ ${diff} أيام` }
+    async function createNote() { const d = await apiFetch('/api/notes', { method: 'POST', body: JSON.stringify({ title: '', content: '', color: NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)] }) }); if (d) { S.notes.unshift(d); renderNotes(); showToast('ملاحظة جديدة 📌') } }
+    async function updateNote(id, title, content) { const body = {}; if (title !== null) body.title = title; if (content !== null) body.content = content; const d = await apiFetch(`/api/notes/${id}`, { method: 'PUT', body: JSON.stringify(body) }); if (d) { const i = S.notes.findIndex(n => n.id === id); if (i !== -1) S.notes[i] = d } }
+    async function togglePin(id) { const n = S.notes.find(x => x.id === id); if (!n) return; const d = await apiFetch(`/api/notes/${id}`, { method: 'PUT', body: JSON.stringify({ pinned: !n.pinned }) }); if (d) { const i = S.notes.findIndex(x => x.id === id); S.notes[i] = d; S.notes.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)); renderNotes() } }
+    async function deleteNote(id) { if (!confirm('حذف الملاحظة؟')) return; const d = await apiFetch(`/api/notes/${id}`, { method: 'DELETE' }); if (d) { S.notes = S.notes.filter(n => n.id !== id); renderNotes(); showToast('تم الحذف 🗑️') } }
+
+    // ── POMODORO ──
+    function initPomodoro() {
+      const saved = localStorage.getItem('by_pomo_dur'); if (saved) S.pomoDurations = JSON.parse(saved); document.getElementById('pomo-dur-focus').textContent = S.pomoDurations.focus + ' د'; document.getElementById('pomo-dur-short').textContent = S.pomoDurations.short + ' د'; document.getElementById('pomo-dur-long').textContent = S.pomoDurations.long + ' د'; if (!S.pomoRunning) { S.pomoTimeLeft = S.pomoDurations[S.pomoMode] * 60; renderPomoTime() } renderPomoCycles(); loadPomoStats().then(renderPomoStats);
+      document.querySelectorAll('.pomo-mode-dur').forEach(el => { el.onclick = function (e) { e.stopPropagation(); const mode = this.parentElement.dataset.mode; const cur = S.pomoDurations[mode]; const v = prompt('المدة بالدقائق:', cur); if (v && !isNaN(v) && +v > 0 && +v <= 120) { S.pomoDurations[mode] = +v; localStorage.setItem('by_pomo_dur', JSON.stringify(S.pomoDurations)); this.textContent = v + ' د'; if (S.pomoMode === mode && !S.pomoRunning) { S.pomoTimeLeft = +v * 60; renderPomoTime() } } } })
+    }
+    function setPomoMode(mode, el) { if (S.pomoRunning) return; S.pomoMode = mode; document.querySelectorAll('.pomo-mode').forEach(m => m.classList.remove('active')); el.classList.add('active'); S.pomoTimeLeft = S.pomoDurations[mode] * 60; document.getElementById('pomo-mode-label').textContent = mode === 'focus' ? 'تركيز 🧠' : 'راحة ☕'; renderPomoTime(); renderPomoRing() }
+    function renderPomoTime() { const m = Math.floor(S.pomoTimeLeft / 60); const s = S.pomoTimeLeft % 60; document.getElementById('pomo-time').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` }
+    function renderPomoRing() { const total = S.pomoDurations[S.pomoMode] * 60; const pct = S.pomoTimeLeft / total; const circ = 2 * Math.PI * 115; document.getElementById('pomo-ring').style.strokeDashoffset = circ * (1 - pct) }
+    function togglePomo() { if (S.pomoRunning) { clearInterval(S.pomoInterval); S.pomoRunning = false; document.getElementById('pomo-start-btn').textContent = '▶️' } else { S.pomoRunning = true; document.getElementById('pomo-start-btn').textContent = '⏸'; S.pomoInterval = setInterval(() => { S.pomoTimeLeft--; renderPomoTime(); renderPomoRing(); if (S.pomoTimeLeft <= 0) { clearInterval(S.pomoInterval); S.pomoRunning = false; document.getElementById('pomo-start-btn').textContent = '▶️'; playTone(); if (S.pomoMode === 'focus') { S.pomoCycles++; renderPomoCycles(); savePomoCycle(); const next = S.pomoCycles % 4 === 0 ? 'long' : 'short'; S.pomoMode = next; S.pomoTimeLeft = S.pomoDurations[next] * 60; document.querySelectorAll('.pomo-mode').forEach(m => m.classList.toggle('active', m.dataset.mode === next)); document.getElementById('pomo-mode-label').textContent = 'راحة ☕' } else { S.pomoMode = 'focus'; S.pomoTimeLeft = S.pomoDurations.focus * 60; document.querySelectorAll('.pomo-mode').forEach(m => m.classList.toggle('active', m.dataset.mode === 'focus')); document.getElementById('pomo-mode-label').textContent = 'تركيز 🧠' } renderPomoTime(); renderPomoRing() } }, 1000) } }
+    function resetPomo() { clearInterval(S.pomoInterval); S.pomoRunning = false; S.pomoTimeLeft = S.pomoDurations[S.pomoMode] * 60; document.getElementById('pomo-start-btn').textContent = '▶️'; renderPomoTime(); renderPomoRing() }
+    function renderPomoCycles() { const el = document.getElementById('pomo-cycles'); el.innerHTML = Array.from({ length: Math.max(4, S.pomoCycles + 1) }, (_, i) => `<span class="pomo-cycle-dot ${i < S.pomoCycles ? 'filled' : ''}">🍅</span>`).join('') }
+    function renderPomoStats() { const st = S.pomoStats || {}; document.getElementById('pomo-today-cycles').textContent = st.todayCycles || 0; document.getElementById('pomo-today-mins').textContent = st.todayFocusMinutes || 0; document.getElementById('pomo-week-total').textContent = st.weekTotal || 0 }
+    async function savePomoCycle() { await apiFetch('/api/pomodoro', { method: 'POST', body: JSON.stringify({ date: todayStr(), focusMinutes: S.pomoDurations.focus, cycles: 1, taskLabel: document.getElementById('pomo-task').value }) }); await loadPomoStats(); renderPomoStats(); showToast('تم إكمال دورة 🍅🎉') }
+    function playTone() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = 440; gain.gain.value = 0.3; osc.start(); osc.stop(ctx.currentTime + 0.3) } catch (e) { } }
+
+    // ── YT LEARNING ──
+    function renderYtWidget() {
+      const w = document.getElementById('yt-widget');
+      if (!w) return;
+      const st = S.ytStats || { watchedVideos: 0, totalVideos: 0, watchedPercent: 0 };
+      document.getElementById('yt-widget-vids').textContent = `${st.watchedVideos}/${st.totalVideos} ڤيديو منتهي`;
+      document.getElementById('yt-widget-pct').textContent = `${st.watchedPercent}%`;
+      document.getElementById('yt-mini-bar').style.width = `${st.watchedPercent}%`;
+    }
+
+    async function initYt() {
+      const plData = await apiFetch('/api/yt/playlists');
+      if (plData) S.ytPlaylists = plData;
+      renderYtPlaylists(true); // default to standalone or first if null
+    }
+
+    function renderYtPlaylists(autoSelect = false) {
+      const c = document.getElementById('yt-playlists-container');
+      if (!c) return;
+      let html = `<div class="yt-playlist-item ${S.selectedPlaylistId === null ? 'active' : ''}" onclick="selectYtPlaylist(null)">
+        <span style="font-size:20px">🗂️</span>
+        <div style="flex:1"><div style="font-weight:700">فيديوهات مستقلة</div></div>
+      </div>`;
+      html += S.ytPlaylists.map(p => `<div class="yt-playlist-item ${S.selectedPlaylistId === p.id ? 'active' : ''}" onclick="selectYtPlaylist('${p.id}')">
+        <span style="font-size:20px">${p.icon || '📚'}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${esc(p.title)}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${p.watchedCount}/${p.videoCount} مكتمل</div>
+        </div>
+        <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+          <button style="width:26px;height:26px;border-radius:6px;background:var(--bg2);font-size:12px;display:flex;align-items:center;justify-content:center" onclick="editYtPlaylist('${p.id}')">✏️</button>
+          <button style="width:26px;height:26px;border-radius:6px;background:var(--bg2);font-size:12px;display:flex;align-items:center;justify-content:center" onclick="deleteYtPlaylist('${p.id}')">🗑</button>
+        </div>
+      </div>`).join('');
+      c.innerHTML = html;
+      if (autoSelect && S.selectedPlaylistId === null) {
+        selectYtPlaylist(null);
+      }
+    }
+
+    async function selectYtPlaylist(id) {
+      S.selectedPlaylistId = id;
+      document.querySelectorAll('.yt-playlist-item').forEach(el => el.classList.remove('active'));
+      const items = Array.from(document.querySelectorAll('.yt-playlist-item'));
+      const idx = id === null ? 0 : S.ytPlaylists.findIndex(p => p.id === id) + 1;
+      if (items[idx]) items[idx].classList.add('active');
+      
+      const url = id ? `/api/yt/videos?playlistId=${id}` : '/api/yt/videos/standalone';
+      const vids = await apiFetch(url);
+      if (vids) { S.ytVideos = vids; renderYtVideos(); }
+    }
+
+    function renderYtVideos() {
+      const c = document.getElementById('yt-videos-container');
+      if (!S.ytVideos.length) {
+        c.innerHTML = '<div class="empty-state"><span class="es-icon">🎬</span><p>لا توجد فيديوهات هنا... أضف فيديو جديد لتبدأ المشاهدة!</p></div>';
+        return;
+      }
+      c.innerHTML = S.ytVideos.map((v, i) => `<div class="yt-vid-card" data-id="${v.id}">
+        <span style="font-size:12px;color:var(--text-faint);min-width:20px;text-align:center">${i + 1}</span>
+        <div class="yt-check ${v.watched ? 'watched' : ''}" onclick="toggleYtWatch('${v.id}')">${v.watched ? '✓' : ''}</div>
+        <div class="yt-vid-thumb" style="background-image:url('https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg')" onclick="openYtVideo('${v.id}')"></div>
+        <div class="yt-vid-info" onclick="openYtVideo('${v.id}')">
+          <div class="yt-vid-title">${esc(v.title)}</div>
+          <div class="yt-vid-meta">
+            <span>⏱ ${v.duration || 'غير محدد'}</span>
+            <span>📝 ${v.noteCount || 0} ملاحظة</span>
+          </div>
+        </div>
+        <div class="yt-vid-actions">
+          <button style="width:30px;height:30px;border-radius:8px;background:var(--bg2);font-size:13px;display:flex;align-items:center;justify-content:center" onclick="editYtVideo('${v.id}')">✏️</button>
+          <button style="width:30px;height:30px;border-radius:8px;background:var(--bg2);font-size:13px;display:flex;align-items:center;justify-content:center" onclick="deleteYtVideo('${v.id}')">🗑</button>
+        </div>
+      </div>`).join('');
+    }
+
+    async function addYtVideo() {
+      const urlInp = document.getElementById('yt-new-url');
+      const titleInp = document.getElementById('yt-new-title');
+      const url = urlInp.value.trim();
+      const title = titleInp ? titleInp.value.trim() : '';
+      if (!url) return showToast('أدخل الرابط أولاً', 'error');
+      const d = await apiFetch('/api/yt/videos', { method: 'POST', body: JSON.stringify({ playlistId: S.selectedPlaylistId, youtubeUrl: url, title: title || undefined }) });
+      if (d) {
+        S.ytVideos.push(d);
+        urlInp.value = '';
+        if (titleInp) titleInp.value = '';
+        renderYtVideos();
+        loadYtData().then(renderYtWidget);
+        showToast('تمت إضافة الفيديو 🎬');
+      }
+    }
+
+    async function toggleYtWatch(id) {
+      const d = await apiFetch(`/api/yt/videos/${id}/watch`, { method: 'POST' });
+      if (d) {
+        const v = S.ytVideos.find(x => x.id === id);
+        if (v) v.watched = d.watched;
+        renderYtVideos();
+        loadYtData().then(renderYtWidget);
+      }
+    }
+
+    async function deleteYtVideo(id) {
+      if (!confirm('حذف هذا الفيديو؟')) return;
+      const d = await apiFetch(`/api/yt/videos/${id}`, { method: 'DELETE' });
+      if (d) {
+        S.ytVideos = S.ytVideos.filter(v => v.id !== id);
+        renderYtVideos();
+        loadYtData().then(renderYtWidget);
+        showToast('تم الحذف 🗑️');
+      }
+    }
+
+    async function deleteYtPlaylist(id) {
+      if (!confirm('حذف هذه القائمة وجميع فيديوهاتها؟')) return;
+      const d = await apiFetch(`/api/yt/playlists/${id}`, { method: 'DELETE' });
+      if (d) {
+        S.ytPlaylists = S.ytPlaylists.filter(p => p.id !== id);
+        if (S.selectedPlaylistId === id) S.selectedPlaylistId = null;
+        renderYtPlaylists();
+        selectYtPlaylist(null);
+        loadYtData().then(renderYtWidget);
+        showToast('تم حذف القائمة 🗑️');
+      }
+    }
+
+    async function editYtPlaylist(id) {
+      event.stopPropagation();
+      const p = S.ytPlaylists.find(x => x.id === id);
+      if (!p) return;
+      const newTitle = prompt('تعديل اسم القائمة:', p.title);
+      if (!newTitle || newTitle === p.title) return;
+      const d = await apiFetch(`/api/yt/playlists/${id}`, { method: 'PUT', body: JSON.stringify({ title: newTitle }) });
+      if (d) {
+        const idx = S.ytPlaylists.findIndex(x => x.id === id);
+        if (idx !== -1) S.ytPlaylists[idx] = d;
+        renderYtPlaylists();
+        showToast('تم التعديل ✏️');
+      }
+    }
+
+    async function editYtVideo(id) {
+      const v = S.ytVideos.find(x => x.id === id);
+      if (!v) return;
+      const newTitle = prompt('تعديل عنوان الفيديو:', v.title);
+      if (!newTitle || newTitle === v.title) return;
+      const d = await apiFetch(`/api/yt/videos/${id}`, { method: 'PUT', body: JSON.stringify({ title: newTitle }) });
+      if (d) {
+        const idx = S.ytVideos.findIndex(x => x.id === id);
+        if (idx !== -1) S.ytVideos[idx] = d;
+        renderYtVideos();
+        showToast('تم التعديل ✏️');
+      }
+    }
+
+    function openYtVideo(id) {
+      const v = S.ytVideos.find(x => x.id === id);
+      if (!v) return;
+      const root = document.getElementById('modal-root');
+      
+      root.innerHTML = `
+        <div class="modal-overlay open" onclick="closeModal()" style="display:block"></div>
+        <div class="modal visible" style="width:900px; max-width:95vw; height:85vh; padding:0; display:flex; flex-direction:column; overflow:hidden">
+          <div style="background:#000; width:100%; aspect-ratio:16/9; max-height:50vh; position:relative; flex-shrink:0;">
+             <iframe src="https://www.youtube.com/embed/${v.videoId}?rel=0" frameborder="0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%"></iframe>
+          </div>
+          <div style="display:flex; flex-direction:column; flex:1; background:var(--bg); padding:20px; overflow-y:auto">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-shrink:0">
+                <h2 style="font-size:18px; font-weight:800; color:var(--text)">${esc(v.title)}</h2>
+                <button onclick="closeModal()" style="padding:8px 16px; background:var(--bg2); color:var(--text); border-radius:var(--radius-sm); font-weight:700">إغلاق ✕</button>
+             </div>
+             <div style="display:flex; gap:10px; margin-bottom:20px; flex-shrink:0">
+                <input id="yt-note-time" placeholder="00:00" style="width:80px; padding:12px; background:var(--surface); border-radius:var(--radius-sm); border:1px solid var(--border)">
+                <input id="yt-note-text" placeholder="اكتب ملاحظتك هنا (يتم الحفظ تلقائياً)..." style="flex:1; padding:12px; background:var(--surface); border-radius:var(--radius-sm); border:1px solid var(--border)" onkeydown="if(event.key==='Enter') addYtNote('${id}')">
+                <button class="btn-primary" onclick="addYtNote('${id}')">حفظ</button>
+             </div>
+             <div id="yt-notes-list" style="display:flex; flex-direction:column; gap:12px; padding-bottom: 20px;"></div>
+          </div>
+        </div>
+      `;
+      loadYtNotes(id);
+    }
+
+    function closeModal() {
+      document.getElementById('modal-root').innerHTML = '';
+    }
+
+    async function loadYtNotes(videoId) {
+      const d = await apiFetch('/api/yt/notes/' + videoId);
+      if (d) {
+        S.ytNotes = d;
+        renderYtNotes();
+      }
+    }
+
+    function renderYtNotes() {
+      const c = document.getElementById('yt-notes-list');
+      if (!c) return;
+      if (!S.ytNotes.length) { 
+        c.innerHTML = '<p style="color:var(--text-faint); font-weight:600; font-size:13px; text-align:center; padding: 20px;">لا توجد ملاحظات لهذا الفيديو 📝</p>'; 
+        return; 
+      }
+      c.innerHTML = S.ytNotes.map(n => `
+        <div style="display:flex; gap:12px; align-items:flex-start; padding:14px; background:var(--surface); border-radius:var(--radius-sm); border:1px solid var(--border-light)">
+          <span class="yt-timestamp">${n.timestamp || '00:00'}</span>
+          <div style="flex:1; font-size:14px; line-height:1.6; color:var(--text); font-weight:500">${esc(n.content)}</div>
+          <button class="habit-action-btn" onclick="deleteYtNote('${n.id}')" style="align-self: flex-start; color:var(--negative)">🗑</button>
+        </div>
+      `).join('');
+    }
+
+    async function addYtNote(videoId) {
+      const time = document.getElementById('yt-note-time').value.trim();
+      const text = document.getElementById('yt-note-text').value.trim();
+      if (!text) return;
+      const d = await apiFetch('/api/yt/notes', { method: 'POST', body: JSON.stringify({ videoId, timestamp: time, content: text }) });
+      if (d) {
+        S.ytNotes.push(d);
+        document.getElementById('yt-note-text').value = '';
+        renderYtNotes();
+        loadYtData().then(renderYtWidget);
+        showToast('تم حفظ الملاحظة');
+      }
+    }
+    
+    async function deleteYtNote(id) {
+      if(!confirm('حذف هذه الملاحظة؟')) return;
+      const d = await apiFetch('/api/yt/notes/' + id, { method: 'DELETE' });
+      if(d) {
+        S.ytNotes = S.ytNotes.filter(n => n.id !== id);
+        renderYtNotes();
+      }
+    }
+
+    async function openPlaylistModal() {
+      const title = prompt('اسم القائمة الجديدة:');
+      if (!title) return;
+      const d = await apiFetch('/api/yt/playlists', { method: 'POST', body: JSON.stringify({ title }) });
+      if (d) {
+        S.ytPlaylists.push(d);
+        initYt();
+        showToast('تم إنشاء القائمة 📚');
+      }
+    }
+    function switchYtTab(tab) {
+      const videoArea = document.getElementById('yt-add-video-area');
+      const playlistArea = document.getElementById('yt-import-playlist-area');
+      const tabVideo = document.getElementById('yt-tab-video');
+      const tabPlaylist = document.getElementById('yt-tab-playlist');
+      if (tab === 'video') {
+        videoArea.classList.remove('hidden');
+        playlistArea.classList.add('hidden');
+        tabVideo.style.background = '';
+        tabVideo.style.color = '';
+        tabPlaylist.style.background = 'var(--bg2)';
+        tabPlaylist.style.color = 'var(--text)';
+      } else {
+        videoArea.classList.add('hidden');
+        playlistArea.classList.remove('hidden');
+        tabPlaylist.style.background = '';
+        tabPlaylist.style.color = '';
+        tabVideo.style.background = 'var(--bg2)';
+        tabVideo.style.color = 'var(--text)';
+      }
+    }
+
+    async function importYtPlaylist() {
+      const urlInp = document.getElementById('yt-playlist-url');
+      const nameInp = document.getElementById('yt-playlist-name');
+      const btn = document.getElementById('yt-import-btn');
+      const url = urlInp.value.trim();
+      const title = nameInp.value.trim();
+      if (!url) return showToast('أدخل رابط قائمة التشغيل', 'error');
+      btn.disabled = true;
+      btn.textContent = '⏳ جاري الاستيراد...';
+      const d = await apiFetch('/api/yt/import-playlist', { method: 'POST', body: JSON.stringify({ playlistUrl: url, title }) });
+      btn.disabled = false;
+      btn.textContent = '📥 استيراد';
+      if (d) {
+        urlInp.value = '';
+        nameInp.value = '';
+        showToast(`تم استيراد ${d.videosAdded} فيديو بنجاح! 🎉`);
+        await initYt();
+        selectYtPlaylist(d.playlist.id);
+        loadYtData().then(renderYtWidget);
+      }
+    }
+
+    // ── Keyboard Shortcuts ──
+    document.addEventListener('keydown', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; if (e.key === 'n' || e.key === 'N') { switchSection('notes', document.querySelector('[data-section=notes]')) } if (e.key === 'p' || e.key === 'P') { switchSection('pomodoro', document.querySelector('[data-section=pomodoro]')) } if (e.key === 'g' || e.key === 'G') { switchSection('goals', document.querySelector('[data-section=goals]')) } });
+
+    // ── Init ──
+    (function init() { if (localStorage.getItem('by_dark') === 'true') { S.darkMode = true; document.body.classList.add('dark'); document.getElementById('dark-toggle').classList.add('on') } const token = localStorage.getItem('by_token'); const user = localStorage.getItem('by_user'); if (token && user) { S.token = token; S.user = JSON.parse(user); showApp() } document.querySelectorAll('.auth-input').forEach(inp => { inp.addEventListener('keydown', e => { if (e.key === 'Enter') { const isLogin = !document.getElementById('auth-form-login').classList.contains('hidden'); isLogin ? handleLogin() : handleRegister() } }) }) })();
+
+  </script>
+</body>
+
+</html>
